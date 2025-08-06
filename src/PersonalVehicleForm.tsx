@@ -7,9 +7,7 @@ interface FormData {
     start_latitude: number | null;
     start_longitude: number | null;
     start_location_str: string | null;
-    end_latitude: number | null;
-    end_longitude: number | null;
-    end_location_str: string | null;
+    purpose: string;
     driver: string;
     start_mileage: number | undefined;
     end_mileage: number | undefined;
@@ -28,9 +26,7 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
         start_latitude: null,
         start_longitude: null,
         start_location_str: null,
-        end_latitude: null,
-        end_longitude: null,
-        end_location_str: null,
+        purpose: '',
         driver: '',
         start_mileage: undefined,
         end_mileage: undefined,
@@ -38,7 +34,7 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
@@ -60,8 +56,7 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
             !!formData.datetime &&
             formData.start_latitude !== null &&
             formData.start_longitude !== null &&
-            formData.end_latitude !== null &&
-            formData.end_longitude !== null &&
+            formData.purpose.trim() !== "" &&
             formData.driver.trim() !== "" &&
             formData.start_mileage !== undefined &&
             formData.end_mileage !== undefined
@@ -116,8 +111,7 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
             </div>
             <div className="form-group mb-3">
                 <label htmlFor="purpose">Purpose</label>
-                <textarea className="form-control" placeholder="Customer name and/or business purpose (e.g. meeting, test, site visit, etc.)" />
-                {/* <input name="purpose" className="form-control" type="text" value={formData.driver} onChange={handleChange} /> */}
+                <textarea className="form-control" name="purpose" placeholder="Customer name and/or business purpose (e.g. meeting, test, site visit, etc.)" rows={3} value={formData.purpose} onChange={handleChange} />
             </div>
             <div className="form-group mb-3">
                 <label htmlFor="driver">Driver</label>
@@ -174,8 +168,8 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
                                         <td>{formData.start_location_str ? `${formData.start_location_str} (${formData.start_latitude}, ${formData.start_longitude})` : `${formData.start_latitude}, ${formData.start_longitude}`}</td>
                                     </tr>
                                     <tr>
-                                        <td><b>End Location</b></td>
-                                        <td>{formData.end_location_str ? `${formData.end_location_str} (${formData.end_latitude}, ${formData.end_longitude})` : `${formData.end_latitude}, ${formData.end_longitude}`}</td>
+                                        <td><b>Purpose</b></td>
+                                        <td>{formData.purpose}</td>
                                     </tr>
                                     <tr>
                                         <td><b>Driver</b></td>
