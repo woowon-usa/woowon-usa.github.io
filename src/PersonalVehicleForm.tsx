@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import GeolocationWidget from "./GeolocationWidget"
 import axios from "axios";
 
@@ -52,15 +52,6 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
             'start_latitude': lat,
             'start_longitude': lng,
             'start_location_str': address
-        }));
-    }
-
-    const handleEndLocationGet = (lat: number, lng: number, address: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            'end_latitude': lat,
-            'end_longitude': lng,
-            'end_location_str': address
         }));
     }
 
