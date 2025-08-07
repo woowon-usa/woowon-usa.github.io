@@ -12,6 +12,7 @@ interface FormData {
     mileage: string;
     manualDatetime: boolean;
     manualLocation: boolean;
+    manualDestination: boolean;
 }
 
 function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
@@ -32,7 +33,8 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
         vehicle: "",
         mileage: "",
         manualDatetime: false,
-        manualLocation: false
+        manualLocation: false,
+        manualDestination: false
     });
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
@@ -116,7 +118,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
     return <>
         <form>
             <h1 className="my-3">Corporate Vehicle Log</h1>
-            <div className="form-group mb-3">
+            <div className="form-group mb-4">
                 <label className="d-flex justify-content-between align-items-center">
                     <b>Date and Time</b>
                     <span className="form-check">
@@ -170,21 +172,39 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </div>
                 <GeolocationWidget manual={formData.manualLocation} onLocationGet={handleLocationGet} />
             </div> */}
-            <div className="form-group mb-3">
-                <label htmlFor="driver"><b>Destination (목적지)</b></label>
-                <select
-                    name="destination"
-                    className="form-select"
-                    value={formData.destination}
-                    onChange={handleChange}
-                >
-                    <option selected>Select destination</option>
-                    {
-                        controlData['destinations'].map((d: any) => <option value={d}>{d}</option>)
-                    }
-                </select>
+            <div className="form-group mb-4">
+                <label className="d-flex justify-content-between align-items-center">
+                    <span><b><b>Destination (목적지)</b></b></span>
+                    <span className="form-check">
+                        <input
+                            className="form-check-input me-1"
+                            type="checkbox"
+                            id="manualDestination"
+                            checked={formData.manualDestination || false}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, manualDestination: e.target.checked }))
+                            }
+                        />
+                        <label className="form-check-label" htmlFor="manualDestination">
+                            Manual
+                        </label>
+                    </span>
+                </label>
+                {formData.manualDestination ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" /> :
+                    <select
+                        name="destination"
+                        className="form-select"
+                        value={formData.destination}
+                        onChange={handleChange}
+                    >
+                        <option selected>Select destination</option>
+                        {
+                            controlData['destinations'].map((d: any) => <option value={d}>{d}</option>)
+                        }
+                    </select>
+                }
             </div>
-            <div className="form-group mb-3">
+            <div className="form-group mb-4">
                 <label htmlFor="driver"><b>Driver (운전자)</b></label>
                 <div className="form-text">
                     <small>
@@ -204,7 +224,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                     }
                 </select>
             </div>
-            <div className="form-group mb-3">
+            <div className="form-group mb-4">
                 <label htmlFor="vehicle"><b>Vehicle (차량)</b></label>
                 <select
                     name="vehicle"

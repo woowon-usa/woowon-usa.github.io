@@ -1,40 +1,48 @@
-import { useState } from "react";
-import GeolocationWidget from "./GeolocationWidget"
+import { useEffect, useState } from "react";
 import axios from "axios";
+
+const getCurrentDateTimeLocal = () => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+};
 
 interface FormData {
     datetime: string;
     start_latitude: number | null;
     start_longitude: number | null;
     start_location_str: string | null;
+    destination: string;
     purpose: string;
     driver: string;
-    start_mileage: number | undefined;
-    end_mileage: number | undefined;
+    start_mileage: number | null;
+    end_mileage: number | null;
     manualLocation: boolean;
     manualPurpose: boolean;
+    manualDatetime: boolean;
+    manualDestination: boolean;
 }
 
-function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
-    const getCurrentDateTimeLocal = () => {
-        const now = new Date();
-        const offset = now.getTimezoneOffset();
-        const local = new Date(now.getTime() - offset * 60000);
-        return local.toISOString().slice(0, 16);
-    };
+const initialData = {
+    datetime: getCurrentDateTimeLocal(),
+    start_latitude: null,
+    start_longitude: null,
+    start_location_str: null,
+    destination: '',
+    purpose: '',
+    driver: '',
+    start_mileage: null,
+    end_mileage: null,
+    manualLocation: false,
+    manualPurpose: false,
+    manualDatetime: false,
+    manualDestination: false
+};
 
-    const [formData, setFormData] = useState<FormData>({
-        datetime: getCurrentDateTimeLocal(),
-        start_latitude: null,
-        start_longitude: null,
-        start_location_str: null,
-        purpose: '',
-        driver: '',
-        start_mileage: undefined,
-        end_mileage: undefined,
-        manualLocation: false,
-        manualPurpose: false
-    });
+function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
+    const localStorageData = localStorage.getItem('woowon.personal_formdata');
+    const [formData, setFormData] = useState<FormData>(localStorageData ? JSON.parse(localStorageData) : initialData);
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -46,14 +54,14 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
         }));
     };
 
-    const handleStartLocationGet = (lat: number, lng: number, address: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            'start_latitude': lat,
-            'start_longitude': lng,
-            'start_location_str': address
-        }));
-    }
+    // const handleStartLocationGet = (lat: number, lng: number, address: string) => {
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         'start_latitude': lat,
+    //         'start_longitude': lng,
+    //         'start_location_str': address
+    //     }));
+    // }
 
     const canSubmit = (): boolean => {
         return (
@@ -78,6 +86,8 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                 },
             );
 
+            localStorage.removeItem('woowon.personal_formdata');
+
             if (response.data.status === "success") {
                 onBack("Sucessfully submitted!")
             } else {
@@ -91,6 +101,15 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
             setShowModal(false);
         }
     };
+
+    const clearForm = () => {
+        localStorage.removeItem('woowon.personal_formdata')
+        setFormData(initialData);
+    }
+
+    useEffect(() => {
+        localStorage.setItem("woowon.personal_formdata", JSON.stringify(formData));
+    }, [formData])
 
     if (controlDataLoading) {
         return (
@@ -108,9 +127,23 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
     return <>
         <form>
             <h1 className="my-3">Personal Vehicle Log</h1>
-            <div className="form-group mb-3">
+            <div className="form-group mb-4">
                 <label className="d-flex justify-content-between align-items-center">
-                    Date and Time
+                    <b>Date and Time</b>
+                    <span className="form-check">
+                        <input
+                            className="form-check-input me-1"
+                            type="checkbox"
+                            id="manualDatetime"
+                            checked={formData.manualDatetime || false}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, manualDatetime: e.target.checked }))
+                            }
+                        />
+                        <label className="form-check-label" htmlFor="manualDatetime">
+                            Manual
+                        </label>
+                    </span>
                 </label>
                 <input
                     className="form-control"
@@ -118,11 +151,12 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                     name='datetime'
                     value={formData.datetime}
                     onChange={handleChange}
+                    disabled={!formData.manualDatetime}
                 />
             </div>
-            <div className="form-group mb-3">
+            {/* <div className="form-group mb-4">
                 <label className="d-flex justify-content-between align-items-center">
-                    <span>Start Location</span>
+                    <span><b>Start Location</b></span>
                     <span className="form-check">
                         <input
                             className="form-check-input me-1"
@@ -139,10 +173,42 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                     </span>
                 </label>
                 <GeolocationWidget manual={formData.manualLocation} onLocationGet={handleStartLocationGet} />
-            </div>
-            <div className="form-group mb-3">
+            </div> */}
+            <div className="form-group mb-4">
                 <label className="d-flex justify-content-between align-items-center">
-                    <span>Purpose</span>
+                    <span><b><b>Destination</b></b></span>
+                    <span className="form-check">
+                        <input
+                            className="form-check-input me-1"
+                            type="checkbox"
+                            id="manualDestination"
+                            checked={formData.manualDestination || false}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, manualDestination: e.target.checked }))
+                            }
+                        />
+                        <label className="form-check-label" htmlFor="manualDestination">
+                            Manual
+                        </label>
+                    </span>
+                </label>
+                {formData.manualDestination ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" /> :
+                    <select
+                        name="destination"
+                        className="form-select"
+                        value={formData.destination}
+                        onChange={handleChange}
+                    >
+                        <option selected>Select destination</option>
+                        {
+                            controlData['destinations'].map((d: any) => <option value={d}>{d}</option>)
+                        }
+                    </select>
+                }
+            </div>
+            <div className="form-group mb-4">
+                <label className="d-flex justify-content-between align-items-center">
+                    <span><b>Purpose</b></span>
                     <span className="form-check">
                         <input
                             className="form-check-input me-1"
@@ -172,27 +238,28 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                     </select>
                 }
             </div>
-            <div className="form-group mb-3">
-                <label htmlFor="driver">Driver</label>
+            <div className="form-group mb-4">
+                <label htmlFor="driver"><b>Driver</b></label>
                 <input name="driver" className="form-control" type="text" value={formData.driver} onChange={handleChange} />
             </div>
-            <div className="form-group mb-3">
-                <label htmlFor="start_mileage">Start Mileage</label>
-                <input name="start_mileage" className="form-control" type="number" value={formData.start_mileage} onChange={handleChange} placeholder="Type start mileage" />
+            <div className="form-group mb-4">
+                <label htmlFor="start_mileage"><b>Start Mileage</b></label>
+                <input name="start_mileage" className="form-control" type="number" value={formData.start_mileage ?? ''} onChange={handleChange} placeholder="Type start mileage" />
             </div>
-            <div className="form-group mb-3">
-                <label htmlFor="end_mileage">End Mileage</label>
-                <input name="end_mileage" className="form-control" type="number" value={formData.end_mileage} onChange={handleChange} placeholder="Type end mileage" />
+            <div className="form-group mb-4">
+                <label htmlFor="end_mileage"><b>End Mileage</b></label>
+                <input name="end_mileage" className="form-control" type="number" value={formData.end_mileage ?? ''} onChange={handleChange} placeholder="Type end mileage" />
             </div>
             <div className="d-grid mt-3 gap-2">
                 <button
                     type="button"
-                    className="btn btn-primary"
+                    className="btn btn-primary mb-3"
                     disabled={!canSubmit()}
                     onClick={() => setShowModal(true)}
                 >
                     Submit</button>
-                <button type="button" className="btn btn-outline-secondary" onClick={() => onBack()}>Back</button>
+                <button type="button" className="btn btn-outline-secondary mb-3" onClick={() => onBack()}>Back</button>
+                <button type="button" className="btn btn-outline-danger" onClick={clearForm}>Clear</button>
             </div>
 
         </form>
