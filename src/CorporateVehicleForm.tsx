@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import GeolocationWidget from "./GeolocationWidget"
 import axios from "axios";
 
 interface FormData {
@@ -55,14 +54,14 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
         }));
     };
 
-    const handleLocationGet = (lat: number, lng: number, address: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            'latitude': lat,
-            'longitude': lng,
-            'location_str': address
-        }));
-    }
+    // const handleLocationGet = (lat: number, lng: number, address: string) => {
+    //     setFormData((prev) => ({
+    //         ...prev,
+    //         'latitude': lat,
+    //         'longitude': lng,
+    //         'location_str': address
+    //     }));
+    // }
 
     const canSubmit = (): boolean => {
         return (
