@@ -15,27 +15,29 @@ interface FormData {
     manualDestination: boolean;
 }
 
-function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
-    const getCurrentDateTimeLocal = () => {
-        const now = new Date();
-        const offset = now.getTimezoneOffset();
-        const local = new Date(now.getTime() - offset * 60000);
-        return local.toISOString().slice(0, 16);
-    };
+const getCurrentDateTimeLocal = () => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+};
 
-    const [formData, setFormData] = useState<FormData>({
-        datetime: getCurrentDateTimeLocal(),
-        latitude: null,
-        longitude: null,
-        location_str: null,
-        destination: "",
-        driver: "",
-        vehicle: "",
-        mileage: "",
-        manualDatetime: false,
-        manualLocation: false,
-        manualDestination: false
-    });
+const initialData = {
+    datetime: getCurrentDateTimeLocal(),
+    latitude: null,
+    longitude: null,
+    location_str: null,
+    destination: "",
+    driver: "",
+    vehicle: "",
+    mileage: "",
+    manualDatetime: false,
+    manualLocation: false,
+    manualDestination: false
+};
+
+function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
+    const [formData, setFormData] = useState<FormData>(initialData);
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -68,8 +70,6 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
     const canSubmit = (): boolean => {
         return (
             !!formData.datetime &&
-            formData.latitude !== null &&
-            formData.longitude !== null &&
             formData.destination.trim() !== "" &&
             formData.driver.trim() !== "" &&
             formData.vehicle.trim() !== "" &&
@@ -101,6 +101,11 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
             setShowModal(false);
         }
     };
+
+    const clearForm = () => {
+        localStorage.removeItem('woowon.personal_formdata')
+        setFormData(initialData);
+    }
 
     if (controlDataLoading) {
         return (
@@ -255,7 +260,8 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                     onClick={() => setShowModal(true)}
                 >
                     Submit</button>
-                <button type="button" className="btn btn-outline-secondary btn-lg" onClick={() => onBack()}>Back</button>
+                <button type="button" className="btn btn-outline-secondary btn-lg mb-4" onClick={() => onBack()}>Back</button>
+                <button type="button" className="btn btn-outline-danger" onClick={clearForm}>Clear</button>
             </div>
 
         </form>
@@ -284,10 +290,6 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                                     <tr>
                                         <td><b>Date/Time</b></td>
                                         <td>{formData.datetime}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><b>Start Location</b></td>
-                                        <td>{formData.location_str ? `${formData.location_str} (${formData.latitude}, ${formData.longitude})` : `${formData.latitude}, ${formData.longitude}`}</td>
                                     </tr>
                                     <tr>
                                         <td><b>Destination</b></td>

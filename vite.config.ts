@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate', manifest: {
         name: 'Woowon Vehicle Log',
-        short_name: 'Woowon',
+        short_name: 'TW Car',
         description: 'Woowon Vehicle Log',
         theme_color: '#085cac',
         icons: [

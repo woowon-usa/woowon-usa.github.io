@@ -66,12 +66,11 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
     const canSubmit = (): boolean => {
         return (
             !!formData.datetime &&
-            formData.start_latitude !== null &&
-            formData.start_longitude !== null &&
+            formData.destination.trim() !== "" &&
             formData.purpose.trim() !== "" &&
             formData.driver.trim() !== "" &&
-            formData.start_mileage !== undefined &&
-            formData.end_mileage !== undefined
+            formData.start_mileage != null &&
+            formData.end_mileage != null
         );
     };
 
@@ -290,8 +289,8 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                                         <td>{formData.datetime}</td>
                                     </tr>
                                     <tr>
-                                        <td><b>Start Location</b></td>
-                                        <td>{formData.start_location_str ? `${formData.start_location_str} (${formData.start_latitude}, ${formData.start_longitude})` : `${formData.start_latitude}, ${formData.start_longitude}`}</td>
+                                        <td><b>Destination</b></td>
+                                        <td>{formData.destination}</td>
                                     </tr>
                                     <tr>
                                         <td><b>Purpose</b></td>
