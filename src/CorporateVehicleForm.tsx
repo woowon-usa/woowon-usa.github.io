@@ -146,7 +146,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
             </div>
             <div className="form-group mb-3">
                 <label className="d-flex justify-content-between align-items-center">
-                    <span>Start Location</span>
+                    <span>Start Location (출발위치)</span>
                     <span className="form-check">
                         <input
                             className="form-check-input me-1"
@@ -162,10 +162,15 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                         </label>
                     </span>
                 </label>
+                <div className="form-text">
+                    GPS location may not be fully precise. Approximate location is acceptable.
+                    <br></br>
+                    자동으로 입력 되는 주소지가 실제와 약간 다를수 있은나 상관 없음
+                </div>
                 <GeolocationWidget manual={formData.manualLocation} onLocationGet={handleLocationGet} />
             </div>
             <div className="form-group mb-3">
-                <label htmlFor="driver">Destination</label>
+                <label htmlFor="driver">Destination (출발위치)</label>
                 <select
                     name="destination"
                     className="form-select"
@@ -179,7 +184,11 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </select>
             </div>
             <div className="form-group mb-3">
-                <label htmlFor="driver">Driver</label>
+                <label htmlFor="driver">Driver (운전자)</label>
+                <div className="form-text">
+                    If your name is not listed below, you must not drive. <br />
+                    리스트에 본인의 이름이 없으면 운전할수 없습니다.
+                </div>
                 <select
                     name="driver"
                     className="form-select"
@@ -193,7 +202,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </select>
             </div>
             <div className="form-group mb-3">
-                <label htmlFor="vehicle">Vehicle</label>
+                <label htmlFor="vehicle">Vehicle (차량)</label>
                 <select
                     name="vehicle"
                     className="form-select"
@@ -207,18 +216,21 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </select>
             </div>
             <div className="form-group">
-                <label htmlFor="mileage">Mileage</label>
+                <label htmlFor="mileage">Mileage (주행거리)</label>
+                <div className="form-text">
+                    주행거리 현재 차량의 주행거리 입력
+                </div>
                 <input name="mileage" className="form-control" type="number" value={formData.mileage} onChange={handleChange} placeholder="Type current mileage" />
             </div>
             <div className="d-grid mt-3 gap-2">
                 <button
                     type="button"
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-lg mb-4"
                     disabled={!canSubmit()}
                     onClick={() => setShowModal(true)}
                 >
                     Submit</button>
-                <button type="button" className="btn btn-outline-secondary" onClick={() => onBack()}>Back</button>
+                <button type="button" className="btn btn-outline-secondary btn-lg" onClick={() => onBack()}>Back</button>
             </div>
 
         </form>

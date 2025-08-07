@@ -46,11 +46,11 @@ function App() {
             <h1 className="mt-3 text-center">Vehicle Log Submission</h1>
             <h2>미국법인 차계부</h2>
             <div className="d-grid gap-2 w-100 my-4">
-              <button type="button" className="btn btn-primary" onClick={() => setPage("corporate")}>
-                New Corporate Submission
+              <button type="button" className="btn btn-primary btn-lg mb-4" onClick={() => setPage("corporate")}>
+                Corporate Submission (법인차량)
               </button>
-              <button type="button" className="btn btn-primary" onClick={() => setPage("personal")}>
-                New Personal Submission
+              <button type="button" className="btn btn-primary btn-lg mt-4" onClick={() => setPage("personal")}>
+                Personal Submission (개인차량)
               </button>
             </div>
           </div>
