@@ -119,7 +119,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
             <h1 className="my-3">Corporate Vehicle Log</h1>
             <div className="form-group mb-3">
                 <label className="d-flex justify-content-between align-items-center">
-                    <span>Date and Time</span>
+                    <b>Date and Time</b>
                     <span className="form-check">
                         <input
                             className="form-check-input me-1"
@@ -144,9 +144,9 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                     disabled={!formData.manualDatetime}
                 />
             </div>
-            <div className="form-group mb-3">
+            {/* <div className="form-group mb-3 display-none">
                 <label className="d-flex justify-content-between align-items-center">
-                    <span>Start Location (출발위치)</span>
+                    <b>Start Location (출발위치)</b>
                     <span className="form-check">
                         <input
                             className="form-check-input me-1"
@@ -163,14 +163,16 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                     </span>
                 </label>
                 <div className="form-text">
-                    GPS location may not be fully precise. Approximate location is acceptable.
-                    <br></br>
-                    자동으로 입력 되는 주소지가 실제와 약간 다를수 있은나 상관 없음
+                    <small>
+                        GPS location may not be fully precise. Approximate location is acceptable.
+                        <br />
+                        자동으로 입력 되는 주소지가 실제와 약간 다를수 있은나 상관 없음
+                    </small>
                 </div>
                 <GeolocationWidget manual={formData.manualLocation} onLocationGet={handleLocationGet} />
-            </div>
+            </div> */}
             <div className="form-group mb-3">
-                <label htmlFor="driver">Destination (출발위치)</label>
+                <label htmlFor="driver"><b>Destination (목적지)</b></label>
                 <select
                     name="destination"
                     className="form-select"
@@ -184,10 +186,12 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </select>
             </div>
             <div className="form-group mb-3">
-                <label htmlFor="driver">Driver (운전자)</label>
+                <label htmlFor="driver"><b>Driver (운전자)</b></label>
                 <div className="form-text">
-                    If your name is not listed below, you must not drive. <br />
-                    리스트에 본인의 이름이 없으면 운전할수 없습니다.
+                    <small>
+                        If your name is not listed below, you must not drive. <br />
+                        리스트에 본인의 이름이 없으면 운전할수 없습니다.
+                    </small>
                 </div>
                 <select
                     name="driver"
@@ -202,7 +206,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </select>
             </div>
             <div className="form-group mb-3">
-                <label htmlFor="vehicle">Vehicle (차량)</label>
+                <label htmlFor="vehicle"><b>Vehicle (차량)</b></label>
                 <select
                     name="vehicle"
                     className="form-select"
@@ -216,9 +220,11 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                 </select>
             </div>
             <div className="form-group">
-                <label htmlFor="mileage">Mileage (주행거리)</label>
+                <label htmlFor="mileage"><b>Mileage (주행거리)</b></label>
                 <div className="form-text">
-                    주행거리 현재 차량의 주행거리 입력
+                    <small>
+                        주행거리 현재 차량의 주행거리 입력
+                    </small>
                 </div>
                 <input name="mileage" className="form-control" type="number" value={formData.mileage} onChange={handleChange} placeholder="Type current mileage" />
             </div>
