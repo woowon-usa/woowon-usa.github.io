@@ -16,8 +16,7 @@ interface FormData {
     destination: string;
     purpose: string;
     driver: string;
-    start_mileage: number | null;
-    end_mileage: number | null;
+    mileage: number | null;
     manualLocation: boolean;
     manualPurpose: boolean;
     manualDatetime: boolean;
@@ -32,8 +31,7 @@ const initialData = {
     destination: '',
     purpose: '',
     driver: '',
-    start_mileage: null,
-    end_mileage: null,
+    mileage: null,
     manualLocation: false,
     manualPurpose: false,
     manualDatetime: false,
@@ -41,8 +39,7 @@ const initialData = {
 };
 
 function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
-    const localStorageData = localStorage.getItem('woowon.personal_formdata');
-    const [formData, setFormData] = useState<FormData>(localStorageData ? JSON.parse(localStorageData) : initialData);
+    const [formData, setFormData] = useState<FormData>(initialData);
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -69,8 +66,7 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
             formData.destination.trim() !== "" &&
             formData.purpose.trim() !== "" &&
             formData.driver.trim() !== "" &&
-            formData.start_mileage != null &&
-            formData.end_mileage != null
+            formData.mileage != null
         );
     };
 
@@ -102,13 +98,8 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
     };
 
     const clearForm = () => {
-        localStorage.removeItem('woowon.personal_formdata')
         setFormData(initialData);
     }
-
-    useEffect(() => {
-        localStorage.setItem("woowon.personal_formdata", JSON.stringify(formData));
-    }, [formData])
 
     if (controlDataLoading) {
         return (
@@ -242,12 +233,8 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                 <input name="driver" className="form-control" type="text" value={formData.driver} onChange={handleChange} />
             </div>
             <div className="form-group mb-4">
-                <label htmlFor="start_mileage"><b>Start Mileage</b></label>
-                <input name="start_mileage" className="form-control" type="number" value={formData.start_mileage ?? ''} onChange={handleChange} placeholder="Type start mileage" />
-            </div>
-            <div className="form-group mb-4">
-                <label htmlFor="end_mileage"><b>End Mileage</b></label>
-                <input name="end_mileage" className="form-control" type="number" value={formData.end_mileage ?? ''} onChange={handleChange} placeholder="Type end mileage" />
+                <label htmlFor="mileage"><b>Mileage Usage</b></label>
+                <input name="mileage" className="form-control" type="number" value={formData.mileage ?? ''} onChange={handleChange} placeholder="Type mileage usage" />
             </div>
             <div className="d-grid mt-3 gap-2">
                 <button
@@ -301,16 +288,8 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                                         <td>{formData.driver}</td>
                                     </tr>
                                     <tr>
-                                        <td><b>Start Mileage</b></td>
-                                        <td>{formData.start_mileage}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><b>End Mileage</b></td>
-                                        <td>{formData.end_mileage}</td>
-                                    </tr>
-                                    <tr>
-                                        <td><b>Mileage Difference</b></td>
-                                        <td>{formData.end_mileage! - formData.start_mileage!}</td>
+                                        <td><b>Mileage</b></td>
+                                        <td>{formData.mileage}</td>
                                     </tr>
                                 </tbody>
                             </table>

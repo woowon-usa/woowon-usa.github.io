@@ -179,7 +179,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
             </div> */}
             <div className="form-group mb-4">
                 <label className="d-flex justify-content-between align-items-center">
-                    <span><b><b>Destination (목적지)</b></b></span>
+                    <span><b>Destination (목적지)</b></span>
                     <span className="form-check">
                         <input
                             className="form-check-input me-1"
