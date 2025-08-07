@@ -15,7 +15,7 @@ interface FormData {
     manualLocation: boolean;
 }
 
-function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }) {
+function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
     const getCurrentDateTimeLocal = () => {
         const now = new Date();
         const offset = now.getTimezoneOffset();
@@ -35,32 +35,8 @@ function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }
         manualDatetime: false,
         manualLocation: false
     });
-    const [loading, setLoading] = useState<boolean>(true);
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
-    const [controlDataSuccess, setControlDataSuccess] = useState<boolean>(false);
-    const [drivers, setDrivers] = useState<string[]>([]);
-    const [vehicles, setVehicles] = useState<string[]>([]);
-    const [destinations, setDestinations] = useState<string[]>([]);
     const [showModal, setShowModal] = useState(false);
-
-    useEffect(() => {
-        const fetchControlData = async () => {
-            try {
-                const response = await fetch(import.meta.env.VITE_GOOGLE_APPS_SCRIPT_ENDPOINT);
-                const json = await response.json();
-                setDrivers(json['drivers']);
-                setVehicles(json['vehicles']);
-                setDestinations(json['destinations']);
-                setControlDataSuccess(true);
-            } catch (error) {
-                console.error("Error fetching control data:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchControlData();
-    }, []);
 
     useEffect(() => {
         if (!formData.manualDatetime) {
@@ -125,7 +101,7 @@ function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }
         }
     };
 
-    if (loading) {
+    if (controlDataLoading) {
         return (
             <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
                 <div className="d-flex flex-column align-items-center">
@@ -136,12 +112,6 @@ function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }
                 </div>
             </div>
         );
-    }
-
-    if (!controlDataSuccess) {
-        <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
-            <div>Error: failed to fetch data from API.</div>
-        </div>
     }
 
     return <>
@@ -204,7 +174,7 @@ function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }
                 >
                     <option selected>Select destination</option>
                     {
-                        destinations.map((d) => <option value={d}>{d}</option>)
+                        controlData['destinations'].map((d: any) => <option value={d}>{d}</option>)
                     }
                 </select>
             </div>
@@ -218,7 +188,7 @@ function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }
                 >
                     <option selected>Select driver</option>
                     {
-                        drivers.map((d) => <option value={d}>{d}</option>)
+                        controlData['drivers'].map((d: any) => <option value={d}>{d}</option>)
                     }
                 </select>
             </div>
@@ -232,7 +202,7 @@ function CorporateVehicleForm({ onBack }: { onBack: (message?: string) => void }
                 >
                     <option selected>Select vehicle</option>
                     {
-                        vehicles.map((v) => <option value={v}>{v}</option>)
+                        controlData['vehicles'].map((v: any) => <option value={v}>{v}</option>)
                     }
                 </select>
             </div>

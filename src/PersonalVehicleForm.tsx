@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import GeolocationWidget from "./GeolocationWidget"
 import axios from "axios";
 
@@ -11,9 +11,11 @@ interface FormData {
     driver: string;
     start_mileage: number | undefined;
     end_mileage: number | undefined;
+    manualLocation: boolean;
+    manualPurpose: boolean;
 }
 
-function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void }) {
+function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
     const getCurrentDateTimeLocal = () => {
         const now = new Date();
         const offset = now.getTimezoneOffset();
@@ -30,6 +32,8 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
         driver: '',
         start_mileage: undefined,
         end_mileage: undefined,
+        manualLocation: false,
+        manualPurpose: false
     });
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
@@ -88,6 +92,19 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
         }
     };
 
+    if (controlDataLoading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+                <div className="d-flex flex-column align-items-center">
+                    <div className="spinner-border mb-2" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <div>Fetching latest data...</div>
+                </div>
+            </div>
+        );
+    }
+
     return <>
         <form>
             <h1 className="my-3">Personal Vehicle Log</h1>
@@ -105,13 +122,55 @@ function PersonalVehicleForm({ onBack }: { onBack: (message?: string) => void })
             </div>
             <div className="form-group mb-3">
                 <label className="d-flex justify-content-between align-items-center">
-                    Start Location
+                    <span>Start Location</span>
+                    <span className="form-check">
+                        <input
+                            className="form-check-input me-1"
+                            type="checkbox"
+                            id="manualLocation"
+                            checked={formData.manualLocation || false}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, manualLocation: e.target.checked }))
+                            }
+                        />
+                        <label className="form-check-label" htmlFor="manualLocation">
+                            Manual
+                        </label>
+                    </span>
                 </label>
-                <GeolocationWidget manual={true} onLocationGet={handleStartLocationGet} />
+                <GeolocationWidget manual={formData.manualLocation} onLocationGet={handleStartLocationGet} />
             </div>
             <div className="form-group mb-3">
-                <label htmlFor="purpose">Purpose</label>
-                <textarea className="form-control" name="purpose" placeholder="Customer name and/or business purpose (e.g. meeting, test, site visit, etc.)" rows={3} value={formData.purpose} onChange={handleChange} />
+                <label className="d-flex justify-content-between align-items-center">
+                    <span>Purpose</span>
+                    <span className="form-check">
+                        <input
+                            className="form-check-input me-1"
+                            type="checkbox"
+                            id="manualPurpose"
+                            checked={formData.manualPurpose || false}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, manualPurpose: e.target.checked }))
+                            }
+                        />
+                        <label className="form-check-label" htmlFor="manualPurpose">
+                            Manual
+                        </label>
+                    </span>
+                </label>
+                {formData.manualPurpose ? <input className="form-control" name="purpose" type="text" placeholder="Enter purpose" /> :
+                    <select
+                        name="purpose"
+                        className="form-select"
+                        value={formData.purpose}
+                        onChange={handleChange}
+                    >
+                        <option selected>Select purpose</option>
+                        {
+                            controlData['purpose'].map((v: any) => <option value={v}>{v}</option>)
+                        }
+                    </select>
+                }
             </div>
             <div className="form-group mb-3">
                 <label htmlFor="driver">Driver</label>

@@ -8,8 +8,7 @@ function GeolocationWidget({ manual, onLocationGet }: { manual: boolean, onLocat
         positionOptions: {
             enableHighAccuracy: false,
         },
-        userDecisionTimeout: 5000,
-        suppressLocationOnMount: true
+        watchLocationPermissionChange: true
     });
 
     const [fetchingAddress, setFetchingAddress] = useState(false);
@@ -43,7 +42,7 @@ function GeolocationWidget({ manual, onLocationGet }: { manual: boolean, onLocat
     }, [coords]);
 
     useEffect(() => {
-        if(!manual) {
+        if(!manual && !coords) {
             getPosition();
         }
     }, [manual]);
