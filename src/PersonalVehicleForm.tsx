@@ -180,7 +180,7 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                         </label>
                     </span>
                 </label>
-                {formData.manualDestination ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" /> :
+                {formData.manualDestination ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" value={formData.destination} onChange={handleChange} /> :
                     <select
                         name="destination"
                         className="form-select"
@@ -212,7 +212,7 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                         </label>
                     </span>
                 </label>
-                {formData.manualPurpose ? <input className="form-control" name="purpose" type="text" placeholder="Enter purpose" /> :
+                {formData.manualPurpose ? <input className="form-control" name="purpose" type="text" placeholder="Enter purpose" value={formData.purpose} onChange={handleChange} /> :
                     <select
                         name="purpose"
                         className="form-select"

@@ -197,7 +197,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
                         </label>
                     </span>
                 </label>
-                {formData.manualDestination ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" /> :
+                {formData.manualDestination ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" value={formData.destination} onChange={handleChange} /> :
                     <select
                         name="destination"
                         className="form-select"
