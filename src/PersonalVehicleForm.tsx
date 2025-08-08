@@ -81,8 +81,6 @@ function PersonalVehicleForm({ onBack, controlData, controlDataLoading }: { onBa
                 },
             );
 
-            localStorage.removeItem('woowon.personal_formdata');
-
             if (response.data.status === "success") {
                 onBack("Sucessfully submitted!")
             } else {

@@ -37,7 +37,8 @@ const initialData = {
 };
 
 function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
-    const [formData, setFormData] = useState<FormData>(initialData);
+    const localData = localStorage.getItem("woowon.corporate_form");
+    const [formData, setFormData] = useState<FormData>(localData ? JSON.parse(localData) : initialData);
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
 
@@ -89,7 +90,8 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
             );
 
             if (response.data.status === "success") {
-                onBack("Sucessfully submitted!")
+                onBack("Sucessfully submitted!");
+                localStorage.setItem('woowon.corporate_form', JSON.stringify(formData));
             } else {
                 alert("Error submitting form: " + response.data.message);
             }
@@ -103,7 +105,7 @@ function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onB
     };
 
     const clearForm = () => {
-        localStorage.removeItem('woowon.personal_formdata')
+        localStorage.removeItem('woowon.corporate_form')
         setFormData(initialData);
     }
 
