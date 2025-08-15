@@ -16,7 +16,7 @@ jobs:
 
       - name: Fetch JSON
         run: |
-          curl -s "curl -sL https://script.google.com/macros/s/AKfycbz6blJaq93pJR6CjmtBNVBqawRtMNr1kXn6-ukd2uW2i_Q-eXtJ0s8WTDt_G02ypdbaQQ/exec" -o docs/control.json
+          curl -sL "https://script.google.com/macros/s/AKfycbz6blJaq93pJR6CjmtBNVBqawRtMNr1kXn6-ukd2uW2i_Q-eXtJ0s8WTDt_G02ypdbaQQ/exec" -o docs/control.json
 
       - name: Commit and push if changed
         run: |
