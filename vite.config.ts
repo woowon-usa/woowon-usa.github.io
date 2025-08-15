@@ -4,10 +4,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
 export default defineConfig({
+  build: {
+    outDir: 'docs'
+  },
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate', manifest: {
+      registerType: 'autoUpdate',
+      manifest: {
         name: 'Woowon Vehicle Log',
         short_name: 'TW Car',
         description: 'Woowon Vehicle Log',

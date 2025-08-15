@@ -19,7 +19,7 @@ function App() {
   useEffect(() => {
     const fetchControlData = async () => {
       try {
-        const response = await fetch(import.meta.env.VITE_GOOGLE_APPS_SCRIPT_ENDPOINT);
+        const response = await fetch('https://woowon-usa.github.io/control.json');
         const json = await response.json();
         setControlData(json);
       } catch (error) {
