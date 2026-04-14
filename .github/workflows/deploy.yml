@@ -22,8 +22,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Backup control.json
+        run: |
+          if [ -f docs/control.json ]; then
+            cp docs/control.json /tmp/control.json
+          fi
+
       - name: Build
         run: npm run build
+
+      - name: Restore control.json
+        run: |
+          if [ -f /tmp/control.json ]; then
+            cp /tmp/control.json docs/control.json
+          fi
 
       - name: Commit and push docs
         run: |
