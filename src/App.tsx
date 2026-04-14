@@ -47,10 +47,10 @@ function App() {
             <h2>미국법인 차계부</h2>
             <div className="d-grid gap-2 w-100 my-4">
               <button type="button" className="btn btn-primary btn-lg mb-4" onClick={() => setPage("corporate")}>
-                Corporate Submission (법인차량)
+                Corporate Submission (법인차량 일일 보고)
               </button>
               <button type="button" className="btn btn-primary btn-lg mt-4" onClick={() => setPage("personal")}>
-                Personal Submission (개인차량)
+                Personal Submission (개인차량 사용 청구)
               </button>
             </div>
           </div>
