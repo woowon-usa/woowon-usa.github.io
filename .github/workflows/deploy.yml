@@ -22,8 +22,6 @@ jobs:
 
       - name: Build
         run: npm run build
-        env:
-          VITE_GOOGLE_APPS_SCRIPT_ENDPOINT: ${{ secrets.VITE_GOOGLE_APPS_SCRIPT_ENDPOINT }}
 
       - name: Copy build to docs
         run: |
