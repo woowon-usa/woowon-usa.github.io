@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -22,11 +24,6 @@ jobs:
 
       - name: Build
         run: npm run build
-
-      - name: Copy build to docs
-        run: |
-          rm -rf docs
-          cp -r dist docs
 
       - name: Commit and push docs
         run: |
