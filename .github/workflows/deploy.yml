@@ -22,26 +22,12 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Backup control.json
-        run: |
-          if [ -f docs/control.json ]; then
-            cp docs/control.json /tmp/control.json
-          fi
-
       - name: Build
         run: npm run build
 
-      - name: Restore control.json
-        run: |
-          if [ -f /tmp/control.json ]; then
-            cp /tmp/control.json docs/control.json
-          fi
-
-- name: Commit and push docs
+      - name: Commit and push docs
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add docs
-          git diff --staged --quiet && echo "Nothing to commit" && exit 0
-          git commit -m "Auto build and deploy"
-          git push
+          git diff --staged --quiet && echo "Nothing to commit" || git commit -m "Auto build and deploy" && git push
