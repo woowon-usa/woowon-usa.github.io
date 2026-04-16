@@ -3,11 +3,13 @@ import axios from "axios";
 
 interface FuelFormData {
     datetime: string;
+    destination: string;
     driver: string;
     vehicle: string;
     mileage: string;
     fuelCost: string;
     manualDatetime: boolean;
+    manualDestination: boolean;
 }
 
 const getCurrentDateTimeLocal = () => {
@@ -19,11 +21,13 @@ const getCurrentDateTimeLocal = () => {
 
 const initialData: FuelFormData = {
     datetime: getCurrentDateTimeLocal(),
+    destination: "",
     driver: "",
     vehicle: "",
     mileage: "",
     fuelCost: "",
     manualDatetime: false,
+    manualDestination: false,
 };
 
 function CorporateFuelForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
@@ -49,6 +53,7 @@ function CorporateFuelForm({ onBack, controlData, controlDataLoading }: { onBack
     const canSubmit = (): boolean => {
         return (
             !!formData.datetime &&
+            formData.destination.trim() !== "" &&
             formData.driver.trim() !== "" &&
             formData.vehicle.trim() !== "" &&
             formData.mileage.trim() !== "" &&
@@ -132,6 +137,32 @@ function CorporateFuelForm({ onBack, controlData, controlDataLoading }: { onBack
                 />
             </div>
 
+            {/* Destination */}
+            <div className="form-group mb-4">
+                <label className="d-flex justify-content-between align-items-center">
+                    <span><b>Destination (목적지)</b></span>
+                    <span className="form-check">
+                        <input
+                            className="form-check-input me-1"
+                            type="checkbox"
+                            id="manualDestination"
+                            checked={formData.manualDestination || false}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, manualDestination: e.target.checked }))
+                            }
+                        />
+                        <label className="form-check-label" htmlFor="manualDestination">Manual</label>
+                    </span>
+                </label>
+                {formData.manualDestination ?
+                    <input className="form-control" name="destination" type="text" placeholder="Enter destination" value={formData.destination} onChange={handleChange} /> :
+                    <select name="destination" className="form-select" value={formData.destination} onChange={handleChange}>
+                        <option value="">Select destination</option>
+                        {controlData['destinations'].map((d: any) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                }
+            </div>
+
             {/* Driver */}
             <div className="form-group mb-4">
                 <label htmlFor="driver"><b>Driver (운전자)</b></label>
@@ -199,6 +230,7 @@ function CorporateFuelForm({ onBack, controlData, controlDataLoading }: { onBack
                             <table className="table mt-3">
                                 <tbody>
                                     <tr><td><b>Date/Time</b></td><td>{formData.datetime}</td></tr>
+                                    <tr><td><b>Destination</b></td><td>{formData.destination}</td></tr>
                                     <tr><td><b>Driver</b></td><td>{formData.driver}</td></tr>
                                     <tr><td><b>Vehicle</b></td><td>{formData.vehicle}</td></tr>
                                     <tr><td><b>Mileage</b></td><td>{formData.mileage}</td></tr>
