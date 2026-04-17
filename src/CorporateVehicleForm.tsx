@@ -37,8 +37,9 @@ const initialData = {
 };
 
 function CorporateVehicleForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
-    const localData = localStorage.getItem("woowon.corporate_form");
-    const [formData, setFormData] = useState<FormData>(localData ? JSON.parse(localData) : initialData);
+   const localData = localStorage.getItem("woowon.corporate_fuel_form");
+const parsedLocal = localData ? JSON.parse(localData) : null;
+const [formData, setFormData] = useState<FuelFormData>(parsedLocal ? { ...initialData, ...parsedLocal } : initialData);
     const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
     const [showModal, setShowModal] = useState(false);
 
