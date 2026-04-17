@@ -25,9 +25,14 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Fetch control.json
+        run: |
+          curl -sL "https://script.google.com/macros/s/AKfycbz6blJaq93pJR6CjmtBNVBqawRtMNr1kXn6-ukd2uW2i_Q-eXtJ0s8WTDt_G02ypdbaQQ/exec" -o docs/control.json
+
       - name: Commit and push docs
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs
-          git diff --staged --quiet && echo "Nothing to commit" || git commit -m "Auto build and deploy" && git push
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto build and deploy"
+          git push
