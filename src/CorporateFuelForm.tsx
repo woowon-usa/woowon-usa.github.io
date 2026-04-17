@@ -1,104 +1,242 @@
-function getControlValues() {
-  const ss = SpreadsheetApp.openById('1Tj89JvAp9iC4E2Uwi9-WB_pgJCIilN8fi_tFXMfHQlU');
-  const sheet = ss.getSheetByName('Control');
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-  const lastRow = sheet.getLastRow();
-  const numRows = lastRow - 1;
-  if (numRows <= 0) return { drivers: [], vehicles: [], destinations: [], purpose: [] };
-
-  const data = sheet.getRange(2, 1, numRows, 4).getDisplayValues();
-
-  const drivers      = [];
-  const vehicles     = [];
-  const destinations = [];
-  const purpose      = [];
-
-  for (let i = 0; i < data.length; i++) {
-    const [a, b, c, d] = data[i].map(v => (v || '').trim());
-    if (a) drivers.push(a);
-    if (b) vehicles.push(b);
-    if (c) destinations.push(c);
-    if (d) purpose.push(d);
-  }
-
-  return { drivers, vehicles, destinations, purpose };
+interface FuelFormData {
+    datetime: string;
+    destination: string;
+    driver: string;
+    vehicle: string;
+    mileage: string;
+    fuelCost: string;
+    manualDatetime: boolean;
+    manualDestination: boolean;
 }
 
-function doGet(e) { 
-  const json = JSON.stringify(getControlValues());
-  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
-}
+const getCurrentDateTimeLocal = () => {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+};
 
-function doPost(e) {
-  const ss = SpreadsheetApp.openById('1Tj89JvAp9iC4E2Uwi9-WB_pgJCIilN8fi_tFXMfHQlU');
+const initialData: FuelFormData = {
+    datetime: getCurrentDateTimeLocal(),
+    destination: "",
+    driver: "",
+    vehicle: "",
+    mileage: "",
+    fuelCost: "",
+    manualDatetime: false,
+    manualDestination: false,
+};
 
-  try {
-    const data = JSON.parse(e.postData.contents);
+function CorporateFuelForm({ onBack, controlData, controlDataLoading }: { onBack: (message?: string) => void, controlData: any, controlDataLoading: boolean }) {
+    const localData = localStorage.getItem("woowon.corporate_fuel_form");
+    const parsedLocal = localData ? JSON.parse(localData) : null;
+    const [formData, setFormData] = useState<FuelFormData>(parsedLocal ? { ...initialData, ...parsedLocal } : initialData);
+    const [loadingSubmit, setLoadingSubmit] = useState<boolean>(false);
+    const [showModal, setShowModal] = useState(false);
 
-    const serverDateTime = Utilities.formatDate(
-      new Date(),
-      Session.getScriptTimeZone(),
-      "yyyy-MM-dd HH:mm:ss"
-    );
+    useEffect(() => {
+        if (!formData.manualDatetime) {
+            setFormData((prev) => ({ ...prev, datetime: getCurrentDateTimeLocal() }));
+        }
+    }, [formData.manualDatetime]);
 
-    if (data['type'] == 'corporate') {
-      const sheet = ss.getSheetByName('Corporate Log');
-      const [datePart, timePart] = data.datetime.split("T");
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
 
-      sheet.appendRow([
-        serverDateTime,
-        datePart,
-        timePart,
-        data.destination,
-        data.driver,
-        data.vehicle,
-        data.mileage
-      ]);
+    const canSubmit = (): boolean => {
+        return (
+            !!formData.datetime &&
+            (formData.destination || "").trim() !== "" &&
+            (formData.driver || "").trim() !== "" &&
+            (formData.vehicle || "").trim() !== "" &&
+            (formData.mileage || "").trim() !== "" &&
+            (formData.fuelCost || "").trim() !== ""
+        );
+    };
 
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: 'success' }))
-        .setMimeType(ContentService.MimeType.JSON); 
+    const handleConfirmSubmit = async () => {
+        try {
+            setLoadingSubmit(true);
+            const response = await axios.post(
+                import.meta.env.VITE_GOOGLE_APPS_SCRIPT_ENDPOINT,
+                { ...formData, type: "corporateFuel" },
+                { headers: { "Content-Type": "text/plain;charset=utf-8" } }
+            );
+            if (response.data.status === "success") {
+                onBack("Successfully submitted fuel record!");
+                localStorage.setItem("woowon.corporate_fuel_form", JSON.stringify(formData));
+            } else {
+                alert("Error submitting form: " + response.data.message);
+            }
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            alert("Failed to submit form. Check console for details.");
+        } finally {
+            setLoadingSubmit(false);
+            setShowModal(false);
+        }
+    };
 
-    } else if (data['type'] == 'personal') {
-      const sheet = ss.getSheetByName('Personal Log');
-      const [datePart, timePart] = data.datetime.split("T");
+    const clearForm = () => {
+        localStorage.removeItem("woowon.corporate_fuel_form");
+        setFormData(initialData);
+    };
 
-      sheet.appendRow([
-        serverDateTime,
-        datePart,
-        timePart,
-        data.destination,
-        data.purpose,
-        data.driver,
-        data.mileage
-      ]);
-
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: 'success' }))
-        .setMimeType(ContentService.MimeType.JSON); 
-
-    } else if (data['type'] == 'corporateFuel') {
-      const sheet = ss.getSheetByName('Corporate Fuel Log');
-      const [datePart, timePart] = data.datetime.split("T");
-
-      sheet.appendRow([
-        serverDateTime,
-        datePart,
-        timePart,
-        data.driver,
-        data.vehicle,
-        data.mileage,
-        data.fuelCost
-      ]);
-
-      return ContentService
-        .createTextOutput(JSON.stringify({ status: 'success' }))
-        .setMimeType(ContentService.MimeType.JSON); 
+    if (controlDataLoading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "200px" }}>
+                <div className="d-flex flex-column align-items-center">
+                    <div className="spinner-border mb-2" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <div>Fetching latest data...</div>
+                </div>
+            </div>
+        );
     }
 
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: 'error', message: err.message }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+    return (
+        <>
+            <form>
+                <h1 className="my-3">Corporate Fuel Record</h1>
+                <h2 className="mb-4">법인차량 주유기록</h2>
+
+                <div className="form-group mb-4">
+                    <label className="d-flex justify-content-between align-items-center">
+                        <b>Date and Time</b>
+                        <span className="form-check">
+                            <input
+                                className="form-check-input me-1"
+                                type="checkbox"
+                                id="manualDatetime"
+                                checked={formData.manualDatetime || false}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, manualDatetime: e.target.checked }))}
+                            />
+                            <label className="form-check-label" htmlFor="manualDatetime">Manual</label>
+                        </span>
+                    </label>
+                    <input
+                        className="form-control"
+                        type="datetime-local"
+                        name="datetime"
+                        value={formData.datetime}
+                        onChange={handleChange}
+                        disabled={!formData.manualDatetime}
+                    />
+                </div>
+
+                <div className="form-group mb-4">
+                    <label className="d-flex justify-content-between align-items-center">
+                        <span><b>Destination (목적지)</b></span>
+                        <span className="form-check">
+                            <input
+                                className="form-check-input me-1"
+                                type="checkbox"
+                                id="manualDestination"
+                                checked={formData.manualDestination || false}
+                                onChange={(e) => setFormData((prev) => ({ ...prev, manualDestination: e.target.checked }))}
+                            />
+                            <label className="form-check-label" htmlFor="manualDestination">Manual</label>
+                        </span>
+                    </label>
+                    {formData.manualDestination
+                        ? <input className="form-control" name="destination" type="text" placeholder="Enter destination" value={formData.destination} onChange={handleChange} />
+                        : <select name="destination" className="form-select" value={formData.destination} onChange={handleChange}>
+                            <option value="">Select destination</option>
+                            {controlData["destinations"].map((d: string) => <option key={d} value={d}>{d}</option>)}
+                        </select>
+                    }
+                </div>
+
+                <div className="form-group mb-4">
+                    <label htmlFor="driver"><b>Driver (운전자)</b></label>
+                    <div className="form-text">
+                        <small>
+                            If your name is not listed below, you must not drive.<br />
+                            리스트에 본인의 이름이 없으면 운전할수 없습니다.
+                        </small>
+                    </div>
+                    <select name="driver" className="form-select" value={formData.driver} onChange={handleChange}>
+                        <option value="">Select driver</option>
+                        {controlData["drivers"].map((d: string) => <option key={d} value={d}>{d}</option>)}
+                    </select>
+                </div>
+
+                <div className="form-group mb-4">
+                    <label htmlFor="vehicle"><b>Vehicle (차량)</b></label>
+                    <select name="vehicle" className="form-select" value={formData.vehicle} onChange={handleChange}>
+                        <option value="">Select vehicle</option>
+                        {controlData["vehicles"].map((v: string) => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                </div>
+
+                <div className="form-group mb-4">
+                    <label htmlFor="mileage"><b>Mileage (주행거리)</b></label>
+                    <div className="form-text">
+                        <small>주행거리 현재 차량의 주행거리 입력</small>
+                    </div>
+                    <input name="mileage" className="form-control" type="number" value={formData.mileage} onChange={handleChange} placeholder="Type current mileage" />
+                </div>
+
+                <div className="form-group mb-4">
+                    <label htmlFor="fuelCost"><b>Fuel Cost (주유 금액)</b></label>
+                    <div className="form-text">
+                        <small>주유한 금액을 달러($)로 입력하세요</small>
+                    </div>
+                    <div className="input-group">
+                        <span className="input-group-text">$</span>
+                        <input name="fuelCost" className="form-control" type="number" step="0.01" value={formData.fuelCost} onChange={handleChange} placeholder="0.00" />
+                    </div>
+                </div>
+
+                <div className="d-grid mt-3 gap-2">
+                    <button type="button" className="btn btn-primary btn-lg mb-4" disabled={!canSubmit()} onClick={() => setShowModal(true)}>Submit</button>
+                    <button type="button" className="btn btn-outline-secondary btn-lg mb-4" onClick={() => onBack()}>Back</button>
+                    <button type="button" className="btn btn-outline-danger" onClick={clearForm}>Clear</button>
+                </div>
+            </form>
+
+            {showModal && (
+                <div className="modal fade show" style={{ display: "block", background: "rgba(0,0,0,0.5)" }}>
+                    <div className="modal-dialog modal-fullscreen">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Confirm Submission</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowModal(false)} disabled={loadingSubmit}></button>
+                            </div>
+                            <div className="modal-body">
+                                Are you sure you want to submit this <b>corporate fuel record</b>?
+                                <table className="table mt-3">
+                                    <tbody>
+                                        <tr><td><b>Date/Time</b></td><td>{formData.datetime}</td></tr>
+                                        <tr><td><b>Destination</b></td><td>{formData.destination}</td></tr>
+                                        <tr><td><b>Driver</b></td><td>{formData.driver}</td></tr>
+                                        <tr><td><b>Vehicle</b></td><td>{formData.vehicle}</td></tr>
+                                        <tr><td><b>Mileage</b></td><td>{formData.mileage}</td></tr>
+                                        <tr><td><b>Fuel Cost</b></td><td>${formData.fuelCost}</td></tr>
+                                    </tbody>
+                                </table>
+                                {loadingSubmit && (
+                                    <div className="progress" style={{ height: "20px" }}>
+                                        <div className="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style={{ width: "100%" }}></div>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)} disabled={loadingSubmit}>Cancel</button>
+                                <button type="button" className="btn btn-primary" onClick={handleConfirmSubmit} disabled={loadingSubmit}>Confirm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
 }
+
+export default CorporateFuelForm
